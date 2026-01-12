@@ -5,27 +5,24 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { ScrollArea } from "@/components/ui/scroll-area";
-import { AGENTS, type AgentType } from "@/lib/agents";
-import { Send, Loader } from "lucide-react";
+import { Send, Loader, Zap } from "lucide-react";
 
 interface Message {
   id: string;
   role: "user" | "assistant";
   content: string;
   timestamp: Date;
-  source?: "openai" | "n8n";
+  agent?: string;
 }
 
-interface ChatInterfaceProps {
-  agent: AgentType;
-}
+interface ChatInterfaceProps {}
 
-export function ChatInterface({ agent }: ChatInterfaceProps) {
+export function ChatInterface({}: ChatInterfaceProps) {
   const [messages, setMessages] = useState<Message[]>([]);
   const [input, setInput] = useState("");
   const [isLoading, setIsLoading] = useState(false);
+  const [currentAgent, setCurrentAgent] = useState<string | null>(null);
   const scrollRef = useRef<HTMLDivElement>(null);
-  const agentInfo = AGENTS[agent];
 
   useEffect(() => {
     if (scrollRef.current) {
@@ -43,7 +40,6 @@ export function ChatInterface({ agent }: ChatInterfaceProps) {
         role: "user",
         content: input,
         timestamp: new Date(),
-        source: "n8n",
       };
 
       setMessages((prev) => [...prev, userMessage]);
@@ -67,17 +63,16 @@ export function ChatInterface({ agent }: ChatInterfaceProps) {
             role: "assistant",
             content: "",
             timestamp: new Date(),
-            source: "n8n",
           },
         ]);
 
-        // Enviar para API que usa N8N
+        // Enviar para API que usa N8N para classificar automaticamente
         const response = await fetch("/api/chat", {
           method: "POST",
           headers: { "Content-Type": "application/json" },
           body: JSON.stringify({
             messages: messagesList,
-            agent,
+            // agent: null - N8N escolhe automaticamente
           }),
         });
 
@@ -85,11 +80,13 @@ export function ChatInterface({ agent }: ChatInterfaceProps) {
 
         const data = await response.json();
         const assistantContent = data.message || "Resposta do N8N";
+        const selectedAgent = data.agent || "automático";
 
+        setCurrentAgent(selectedAgent);
         setMessages((prev) =>
           prev.map((msg) =>
             msg.id === assistantMessageId
-              ? { ...msg, content: assistantContent }
+              ? { ...msg, content: assistantContent, agent: selectedAgent }
               : msg
           )
         );
@@ -103,34 +100,44 @@ export function ChatInterface({ agent }: ChatInterfaceProps) {
             content:
               "Desculpe, ocorreu um erro ao processar sua mensagem. Tente novamente.",
             timestamp: new Date(),
-            source: "n8n",
           },
         ]);
       } finally {
         setIsLoading(false);
       }
     },
-    [input, messages, isLoading, agent]
+    [input, messages, isLoading]
   );
 
   return (
-    <Card className="h-full flex flex-col">
-      <CardHeader className={`bg-gradient-to-r ${agentInfo.color} text-white`}>
-        <CardTitle className="flex items-center gap-2">
-          <span className="text-2xl">{agentInfo.icon}</span>
-          {agentInfo.name}
-        </CardTitle>
+    <Card className="h-full flex flex-col bg-white shadow-lg">
+      <CardHeader className="bg-gradient-to-r from-blue-500 to-blue-600 text-white">
+        <div className="flex items-center justify-between">
+          <CardTitle className="flex items-center gap-2">
+            <Zap className="h-5 w-5" />
+            Assistente Inteligente
+          </CardTitle>
+          {currentAgent && (
+            <div className="bg-blue-400 bg-opacity-60 px-3 py-1 rounded-full text-sm font-semibold">
+              Agente: {currentAgent}
+            </div>
+          )}
+        </div>
       </CardHeader>
 
       <CardContent className="flex-1 flex flex-col p-4 gap-4">
-        <ScrollArea className="flex-1 border rounded-lg p-4">
-          <div className="space-y-4">
+        <ScrollArea className="flex-1 border rounded-lg p-4 bg-gray-50">
+          <div className="space-y-4 pr-4">
             {messages.length === 0 && (
-              <div className="text-center text-gray-500 py-8">
-                <p className="text-lg">Olá! Eu sou {agentInfo.name}</p>
-                <p className="text-sm mt-2">{agentInfo.description}</p>
-                <p className="text-sm mt-4">
-                  Faça uma pergunta para começar a conversa!
+              <div className="text-center text-gray-500 py-12">
+                <p className="text-lg font-semibold mb-2">👋 Bem-vindo!</p>
+                <p className="text-sm mb-4">
+                  Sou um assistente inteligente que escolhe o melhor agente para
+                  ajudar você.
+                </p>
+                <p className="text-xs text-gray-400">
+                  Digite uma mensagem e deixe o N8N escolher o agente mais
+                  apropriado automaticamente.
                 </p>
               </div>
             )}
@@ -143,27 +150,29 @@ export function ChatInterface({ agent }: ChatInterfaceProps) {
                 }`}
               >
                 <div
-                  className={`max-w-xs px-4 py-2 rounded-lg ${
+                  className={`max-w-xs lg:max-w-md px-4 py-2 rounded-lg ${
                     message.role === "user"
                       ? "bg-blue-500 text-white rounded-br-none"
-                      : "bg-gray-200 text-gray-900 rounded-bl-none"
+                      : "bg-white text-gray-900 rounded-bl-none border border-gray-200 shadow-sm"
                   }`}
                 >
                   <p className="text-sm">{message.content}</p>
                   <p
-                    className={`text-xs mt-1 ${
+                    className={`text-xs mt-1 flex items-center justify-between gap-2 ${
                       message.role === "user"
                         ? "text-blue-100"
-                        : "text-gray-500"
+                        : "text-gray-400"
                     }`}
                   >
-                    {message.timestamp.toLocaleTimeString("pt-BR", {
-                      hour: "2-digit",
-                      minute: "2-digit",
-                    })}
-                    {message.source && message.role === "assistant" && (
-                      <span className="ml-2 opacity-70">
-                        [{message.source}]
+                    <span>
+                      {message.timestamp.toLocaleTimeString("pt-BR", {
+                        hour: "2-digit",
+                        minute: "2-digit",
+                      })}
+                    </span>
+                    {message.agent && message.role === "assistant" && (
+                      <span className="opacity-70 italic">
+                        ({message.agent})
                       </span>
                     )}
                   </p>
@@ -172,9 +181,11 @@ export function ChatInterface({ agent }: ChatInterfaceProps) {
             ))}
 
             {isLoading && (
-              <div className="flex items-center gap-2 text-gray-500">
+              <div className="flex items-center gap-2 text-blue-600 px-4 py-2">
                 <Loader className="h-4 w-4 animate-spin" />
-                <span className="text-sm">N8N está processando...</span>
+                <span className="text-sm font-medium">
+                  N8N está processando...
+                </span>
               </div>
             )}
 
@@ -186,7 +197,7 @@ export function ChatInterface({ agent }: ChatInterfaceProps) {
           <Input
             value={input}
             onChange={(e) => setInput(e.target.value)}
-            placeholder={`Pergunte ao ${agentInfo.name}...`}
+            placeholder="Digite sua mensagem..."
             disabled={isLoading}
             className="flex-1"
           />
@@ -194,7 +205,7 @@ export function ChatInterface({ agent }: ChatInterfaceProps) {
             type="submit"
             disabled={isLoading || !input.trim()}
             size="icon"
-            className="bg-blue-500 hover:bg-blue-600"
+            className="bg-blue-500 hover:bg-blue-600 text-white"
           >
             <Send className="h-4 w-4" />
           </Button>
