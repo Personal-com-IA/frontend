@@ -27,7 +27,7 @@ class N8nClient {
 
   constructor() {
     this.webhookUrl =
-      process.env.N8N_WEBHOOK_URL || "http://localhost:5678/webhook";
+      process.env.N8N_WEBHOOK_URL || "http://localhost:5678/webhook/food-log";
     this.apiKey = process.env.N8N_API_KEY || "";
     this.baseUrl = process.env.N8N_BASE_URL || "http://localhost:5678";
   }
@@ -37,10 +37,12 @@ class N8nClient {
    */
   async sendToWebhook(
     path: string,
-    payload: N8nWebhookPayload
+    payload: N8nWebhookPayload,
   ): Promise<N8nResponse> {
     try {
-      const response = await fetch(`${this.webhookUrl}/${path}`, {
+      const normalizedBase = this.webhookUrl.replace(/\/?$/, "");
+      const normalizedPath = path.replace(/^\//, "");
+      const response = await fetch(`${normalizedBase}/${normalizedPath}`, {
         method: "POST",
         headers: {
           "Content-Type": "application/json",

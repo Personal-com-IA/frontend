@@ -13,7 +13,7 @@ export default function Home() {
             Multi-Agent AI System
           </h1>
           <p className="text-gray-600">
-            Inteligência Artificial com N8N - Agente automático
+            Inteligência Artificial com N8N 
           </p>
         </div>
 
@@ -24,62 +24,7 @@ export default function Home() {
           </div>
 
           {/* Info Lateral */}
-          <div className="lg:col-span-1 space-y-4">
-            <Card className="p-6">
-              <CardHeader>
-                <CardTitle className="text-lg">Como Funciona</CardTitle>
-              </CardHeader>
-              <CardContent className="space-y-3 text-sm text-gray-600">
-                <p>
-                  ✨ Apenas <strong>digite sua mensagem</strong> e o sistema
-                  automaticamente escolhe o melhor agente.
-                </p>
-                <div className="bg-blue-50 p-3 rounded border border-blue-200">
-                  <p className="font-semibold text-blue-900 mb-2">
-                    Agentes Disponíveis:
-                  </p>
-                  <ul className="space-y-2">
-                    <li>
-                      🔍 <strong>Reflexivo</strong> - Analisa e reflete
-                    </li>
-                    <li>
-                      ⚙️ <strong>Estados</strong> - Gerencia transições
-                    </li>
-                    <li>
-                      🎯 <strong>Objetivos</strong> - Foca em metas
-                    </li>
-                    <li>
-                      🧠 <strong>Aprendizado</strong> - Se adapta
-                    </li>
-                  </ul>
-                </div>
-              </CardContent>
-            </Card>
-
-            <Card className="p-6">
-              <CardHeader>
-                <CardTitle className="text-lg">Recursos</CardTitle>
-              </CardHeader>
-              <CardContent className="space-y-2 text-sm">
-                <div className="flex items-start gap-2">
-                  <span>✅</span>
-                  <span>Seleção inteligente de agentes</span>
-                </div>
-                <div className="flex items-start gap-2">
-                  <span>✅</span>
-                  <span>Integrado com N8N</span>
-                </div>
-                <div className="flex items-start gap-2">
-                  <span>✅</span>
-                  <span>Histórico de conversa</span>
-                </div>
-                <div className="flex items-start gap-2">
-                  <span>✅</span>
-                  <span>Processamento em tempo real</span>
-                </div>
-              </CardContent>
-            </Card>
-          </div>
+          
         </div>
       </div>
     </div>

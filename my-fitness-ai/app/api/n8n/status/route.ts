@@ -6,7 +6,7 @@
 export async function GET() {
   const n8nUrl = process.env.N8N_BASE_URL || "http://localhost:5678";
   const webhookUrl =
-    process.env.N8N_WEBHOOK_URL || "http://localhost:5678/webhook";
+    process.env.N8N_WEBHOOK_URL || "http://localhost:5678/webhook/food-log";
   const isConfigured = !!process.env.N8N_API_KEY;
 
   return Response.json(
@@ -25,6 +25,6 @@ export async function GET() {
       },
       timestamp: new Date().toISOString(),
     },
-    { status: 200 }
+    { status: 200 },
   );
 }
