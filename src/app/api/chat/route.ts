@@ -13,7 +13,7 @@ export async function POST(req: Request) {
   const { messages = [] } = await req.json();
   const normalized = Array.isArray(messages)
     ? messages.map((m: { role: string; content: string }) => ({
-        role: m.role,
+        role: m.role as "user" | "assistant",
         content: m.content,
       }))
     : [];
