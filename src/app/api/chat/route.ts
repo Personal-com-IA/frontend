@@ -42,14 +42,20 @@ export async function POST(req: Request) {
       throw new Error(result.error || "N8N webhook failed");
     }
 
-    const data = result.data || {};
+    const data = (result.data as Record<string, unknown>) || {};
 
     console.log("N8N response data:", data);
 
     return NextResponse.json(
       {
-        message: data.response || data.message || "Resposta do N8N.",
-        agent: data.selectedAgent || data.agent || "automático",
+        message:
+          (data.response as string) ||
+          (data.message as string) ||
+          "Resposta do N8N.",
+        agent:
+          (data.selectedAgent as string) ||
+          (data.agent as string) ||
+          "automático",
       },
       { status: 200 },
     );
