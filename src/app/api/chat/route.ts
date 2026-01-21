@@ -12,7 +12,10 @@ export async function POST(req: Request) {
 
   const { messages = [] } = await req.json();
   const normalized = Array.isArray(messages)
-    ? messages.map((m: any) => ({ role: m.role, content: m.content }))
+    ? messages.map((m: { role: string; content: string }) => ({
+        role: m.role,
+        content: m.content,
+      }))
     : [];
 
   const lastUserMessage =
@@ -40,7 +43,7 @@ export async function POST(req: Request) {
     }
 
     const data = result.data || {};
-    
+
     console.log("N8N response data:", data);
 
     return NextResponse.json(
@@ -48,7 +51,7 @@ export async function POST(req: Request) {
         message: data.response || data.message || "Resposta do N8N.",
         agent: data.selectedAgent || data.agent || "automático",
       },
-      { status: 200 }
+      { status: 200 },
     );
   } catch (error) {
     console.error("Chat API error:", error);
@@ -58,7 +61,7 @@ export async function POST(req: Request) {
           "Desculpe, ocorreu um erro ao processar sua mensagem. Verifique o N8N.",
         agent: "erro",
       },
-      { status: 500 }
+      { status: 500 },
     );
   }
 }

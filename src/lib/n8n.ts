@@ -3,13 +3,13 @@ export interface N8nWebhookPayload {
   user_id?: string;
   message?: string;
   messages?: Array<{ role: "user" | "assistant"; content: string }>;
-  metadata?: Record<string, any>;
+  metadata?: Record<string, unknown>;
   timestamp: string;
 }
 
 export interface N8nResponse {
   success: boolean;
-  data?: any;
+  data?: unknown;
   error?: string;
   workflowId?: string;
 }
@@ -22,14 +22,19 @@ class N8nClient {
   constructor() {
     this.baseUrl = (process.env.N8N_BASE_URL || "").replace(/\/$/, "");
     this.apiKey = process.env.N8N_API_KEY || "";
-    const envWebhookBase = (process.env.N8N_WEBHOOK_BASE_URL || "").replace(/\/$/, "");
+    const envWebhookBase = (process.env.N8N_WEBHOOK_BASE_URL || "").replace(
+      /\/$/,
+      "",
+    );
 
     this.webhookBaseUrl =
-      envWebhookBase ||
-      (this.baseUrl ? `${this.baseUrl}/webhook` : "");
+      envWebhookBase || (this.baseUrl ? `${this.baseUrl}/webhook` : "");
   }
 
-  async sendToWebhook(path: string, payload: N8nWebhookPayload): Promise<N8nResponse> {
+  async sendToWebhook(
+    path: string,
+    payload: N8nWebhookPayload,
+  ): Promise<N8nResponse> {
     try {
       if (!this.webhookBaseUrl) {
         throw new Error("N8N webhook base URL not configured");
@@ -59,7 +64,7 @@ class N8nClient {
     }
   }
 
-  async callApi(endpoint: string, options: RequestInit = {}): Promise<any> {
+  async callApi(endpoint: string, options: RequestInit = {}): Promise<unknown> {
     try {
       if (!this.baseUrl) throw new Error("N8N base URL not configured");
       const response = await fetch(`${this.baseUrl}/api${endpoint}`, {

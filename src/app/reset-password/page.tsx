@@ -36,8 +36,10 @@ export default function ResetPasswordPage() {
       if (error) throw error;
 
       setMessage("Link enviado! Verifique seu e-mail para redefinir a senha.");
-    } catch (err: any) {
-      setMessage(err?.message ?? "Erro ao enviar link.");
+    } catch (err: Error | unknown) {
+      const errorMessage =
+        err instanceof Error ? err.message : "Erro ao enviar link.";
+      setMessage(errorMessage);
     } finally {
       setLoading(false);
     }

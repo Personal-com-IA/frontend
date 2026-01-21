@@ -71,8 +71,10 @@ export default function LoginPage() {
       setMessage(
         "Conta criada! Verifique seu e-mail para confirmar o cadastro.",
       );
-    } catch (err: any) {
-      setMessage(err?.message ?? "Erro ao autenticar.");
+    } catch (err: Error | unknown) {
+      const errorMessage =
+        err instanceof Error ? err.message : "Erro ao autenticar.";
+      setMessage(errorMessage);
     } finally {
       setLoading(false);
     }

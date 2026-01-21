@@ -5,7 +5,7 @@ export async function GET(request: NextRequest) {
   const url = new URL(request.url);
   const code = url.searchParams.get("code");
 
-  let response = NextResponse.redirect(new URL("/", request.url));
+  const response = NextResponse.redirect(new URL("/", request.url));
 
   if (!code) return response;
 
@@ -23,7 +23,7 @@ export async function GET(request: NextRequest) {
           });
         },
       },
-    }
+    },
   );
 
   await supabase.auth.exchangeCodeForSession(code);

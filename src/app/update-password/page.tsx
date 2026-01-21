@@ -46,8 +46,12 @@ function UpdatePasswordContent() {
         }
 
         setReady(true);
-      } catch (err: any) {
-        setMessage(err?.message ?? "Não foi possível validar o link.");
+      } catch (err: Error | unknown) {
+        const errorMessage =
+          err instanceof Error
+            ? err.message
+            : "Não foi possível validar o link.";
+        setMessage(errorMessage);
         setReady(false);
       }
     })();
@@ -73,8 +77,10 @@ function UpdatePasswordContent() {
 
       setMessage("Senha atualizada! Redirecionando...");
       setTimeout(() => router.replace("/"), 800);
-    } catch (err: any) {
-      setMessage(err?.message ?? "Erro ao atualizar senha.");
+    } catch (err: Error | unknown) {
+      const errorMessage =
+        err instanceof Error ? err.message : "Erro ao atualizar senha.";
+      setMessage(errorMessage);
     } finally {
       setLoading(false);
     }
