@@ -18,15 +18,21 @@ class N8nClient {
   private apiKey: string;
   private baseUrl: string;
   private webhookBaseUrl: string;
+  private webhookUrl: string;
 
   constructor() {
     this.baseUrl = (process.env.N8N_BASE_URL || "").replace(/\/$/, "");
     this.apiKey = process.env.N8N_API_KEY || "";
+    const envWebhookUrl = (process.env.N8N_WEBHOOK_URL || "").replace(
+      /\/$/,
+      "",
+    );
     const envWebhookBase = (process.env.N8N_WEBHOOK_BASE_URL || "").replace(
       /\/$/,
       "",
     );
 
+    this.webhookUrl = envWebhookUrl;
     this.webhookBaseUrl =
       envWebhookBase || (this.baseUrl ? `${this.baseUrl}/webhook` : "");
   }
@@ -36,11 +42,33 @@ class N8nClient {
     payload: N8nWebhookPayload,
   ): Promise<N8nResponse> {
     try {
-      if (!this.webhookBaseUrl) {
+      if (!this.webhookUrl && !this.webhookBaseUrl) {
         throw new Error("N8N webhook base URL not configured");
       }
       const normalizedPath = path.replace(/^\//, "");
-      const url = `${this.webhookBaseUrl}/${normalizedPath}`;
+      let url = "";
+
+      if (this.webhookUrl) {
+        try {
+          const parsed = new URL(this.webhookUrl);
+          const trimmedPath = parsed.pathname.replace(/\/$/, "");
+          const suffix = `/${normalizedPath}`;
+
+          if (!normalizedPath) {
+            url = this.webhookUrl;
+          } else if (trimmedPath === "/webhook") {
+            url = `${this.webhookUrl.replace(/\/$/, "")}/${normalizedPath}`;
+          } else if (trimmedPath.endsWith(suffix)) {
+            url = this.webhookUrl;
+          } else {
+            url = this.webhookUrl;
+          }
+        } catch {
+          url = this.webhookUrl;
+        }
+      } else {
+        url = `${this.webhookBaseUrl}/${normalizedPath}`;
+      }
 
       const response = await fetch(url, {
         method: "POST",

@@ -4,9 +4,8 @@ import { createClient } from "@/lib/supabase/server";
 
 export async function POST(req: Request) {
   const supabase = await createClient();
-  const { data: sessionData, error: sessionError } =
-    await supabase.auth.getSession();
-  if (sessionError || !sessionData.session) {
+  const { data: userData, error: userError } = await supabase.auth.getUser();
+  if (userError || !userData.user) {
     return NextResponse.json({ message: "Unauthorized" }, { status: 401 });
   }
 
@@ -25,7 +24,7 @@ export async function POST(req: Request) {
 
   const payload: N8nWebhookPayload = {
     agentType: "auto",
-    user_id: sessionData.session.user.id,
+    user_id: userData.user.id,
     message: lastUserMessage,
     messages: normalized,
     metadata: {
