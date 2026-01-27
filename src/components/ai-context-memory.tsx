@@ -8,7 +8,6 @@ interface LearningEntry {
   id: string;
   bad_experience: string;
   created_at: string;
-  topic: string;
 }
 
 export function AIContextMemory({ userId }: { userId: string }) {
@@ -22,7 +21,7 @@ export function AIContextMemory({ userId }: { userId: string }) {
       try {
         const { data: learningData } = await supabase
           .from("ai_learning")
-          .select("id, bad_experience, created_at, topic")
+          .select("id, bad_experience, created_at") 
           .eq("user_id", userId)
           .order("created_at", { ascending: false })
           .limit(10);
@@ -86,18 +85,11 @@ export function AIContextMemory({ userId }: { userId: string }) {
             >
               <div className="mb-2 flex items-center justify-between">
                 <div className="flex items-center gap-1.5">
-                  <div
-                    className={`h-1.5 w-1.5 rounded-full ${
-                      entry.topic?.includes("NEGATIVO")
-                        ? "bg-red-400"
-                        : "bg-yellow-400"
-                    }`}
-                  />
+                  <div className="h-1.5 w-1.5 rounded-full bg-yellow-500" />                  
                   <span className="font-mono text-[9px] uppercase tracking-wider text-slate-400">
-                    {entry.topic || "FEEDBACK"}
+                    FEEDBACK
                   </span>
                 </div>
-
                 <div className="flex items-center gap-1 text-[9px] text-slate-600">
                   <Clock className="h-3 w-3" />
                   <span>
